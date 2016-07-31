@@ -9,7 +9,7 @@ from utils import format_path
 __all__ = ["Pmd", "Checkstyle"]
 
 
-class GoalNotImplementedError(Exception):
+class GoalNotImplementedError(BaseException):
     pass
 
 

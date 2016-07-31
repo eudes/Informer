@@ -6,7 +6,8 @@ from validate import Validator
 from config import PluginManager
 from project import Project
 
-class PluginConfigNotFoundError:
+
+class PluginConfigNotFoundError(BaseException):
     pass
 
 

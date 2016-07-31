@@ -1,7 +1,7 @@
 from plugins import BasePlugin
 
 
-class InvalidPluginConfigError:
+class InvalidPluginConfigError(BaseException):
     pass
 
 
