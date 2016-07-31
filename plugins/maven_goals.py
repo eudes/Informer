@@ -40,7 +40,7 @@ class MavenGoal(BasePlugin):
         else:
             print(self.name + ": No se ha indicado un archivo de configuración de maven, usando la configuración por defecto")
 
-        pom_file = " ".join(["-f", format_path("$folder" + self.pom_filename)])
+        pom_file = " ".join(["-f", "$folder" + self.pom_filename])
 
         flags_array = ["-B"]
         if maven_config['quiet']:
@@ -72,8 +72,8 @@ class MavenGoal(BasePlugin):
         return Report(report=new_report, formatted_report=formatted_report)
 
     def get_build_command(self, project_folder):
-        return self.mvn_command_template.substitute(folder=project_folder,
-                                                    goal=self.command_maven_goal)
+        return format_path(self.mvn_command_template.substitute(folder=project_folder,
+                                                    goal=self.command_maven_goal))
 
     def parse_report(self, project_folder):
         raise NotImplementedError
