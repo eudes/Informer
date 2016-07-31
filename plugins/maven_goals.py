@@ -52,9 +52,9 @@ class MavenGoal(BasePlugin):
 
     def get_diff_report(self, new_report, old_report):
         diff_report = new_report[:]
-
+        old_report_results = None
         if old_report:
-            old_report_results = old_report[0]
+            old_report_results = old_report['report']
 
         for index, value in enumerate(new_report):
             if old_report_results and old_report_results[index]:
@@ -72,8 +72,8 @@ class MavenGoal(BasePlugin):
         return Report(report=new_report, formatted_report=formatted_report)
 
     def get_build_command(self, project_folder):
-        return format_path(self.mvn_command_template.substitute(folder=project_folder,
-                                                    goal=self.command_maven_goal))
+        return self.mvn_command_template.substitute(folder=format_path(project_folder),
+                                                    goal=self.command_maven_goal)
 
     def parse_report(self, project_folder):
         raise NotImplementedError

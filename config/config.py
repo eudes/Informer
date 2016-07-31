@@ -6,6 +6,9 @@ from validate import Validator
 from config import PluginManager
 from project import Project
 
+class PluginConfigNotFoundError:
+    pass
+
 
 def load_config(config_file_path):
     """
@@ -26,7 +29,15 @@ def load_config(config_file_path):
                 if config.get(section):
                     config[section].configspec = ConfigObj(configspec=section_conf, interpolation="Template").configspec
                 else:
-                    config[section] = ConfigObj(configspec=section_conf, interpolation="Template")
+                    # TODO: crear una nueva sección a partir de la configspec correspondiente
+                    # si no se indica la sección del plugin en la config
+                    # ejemplo: se añade el plugin svn a la config pero no se añade la
+                    # sección [svn]
+                    # config[section] = ConfigObj(configspec=section_conf, interpolation="Template")
+                    print("Error al parsear la config para: %s. Probablemente no se haya añadido"
+                          "la sección correspondiente al plugin" % section)
+                    raise PluginConfigNotFoundError
+
         except FileNotFoundError:
             continue
 
