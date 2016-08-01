@@ -54,13 +54,20 @@ class MavenGoal(BasePlugin):
         diff_report = new_report[:]
         old_report_results = None
         if old_report:
-            old_report_results = old_report['report']
+            try:
+                old_report_results = old_report['report']
+            except KeyError:
+                pass
 
         for index, value in enumerate(new_report):
-            if old_report_results and old_report_results[index]:
-                diff_report[index] = value - old_report_results[index]
-            else:
-                diff_report[index] = "X"
+            diff = "X"
+            if old_report_results:
+                try:
+                    diff = value - old_report_results[index]
+                except KeyError:
+                    pass
+
+            diff_report[index] = diff
 
         return diff_report
 
@@ -102,7 +109,7 @@ class Checkstyle(MavenGoal):
         """
         Parsea el archivo rss generado por checkstyle
         """
-        report = []
+        report = [0, 0, 0]
 
         checkstyle_file = (project_folder + self.report_document_path).replace("\\", "/")
 
@@ -113,6 +120,10 @@ class Checkstyle(MavenGoal):
         # Busca el elemento que contiene los datos
         for title in root.find("channel").find("item").find("title").itertext():
             cs_text = title
+            break
+        else:
+            # TODO: manejar bien esta excepción
+            raise Exception
 
         report[0] = int(re.findall("Errors: (\d+)", cs_text)[0])
         report[1] = int(re.findall("Warnings: (\d+)", cs_text)[0])
@@ -121,6 +132,7 @@ class Checkstyle(MavenGoal):
         return report
 
 
+# noinspection PyUnusedLocal
 class Pmd(MavenGoal):
     report_document_path = "/target/pmd.xml"
     command_maven_goal = "pmd:pmd"
@@ -136,16 +148,21 @@ class Pmd(MavenGoal):
         """
         report = [0 for __ in range(self.max_priority)]
 
-        pmd_file = (project_folder + self.report_document_path).replace('\\', '/')
+        pmd_file_path = (project_folder + self.report_document_path).replace('\\', '/')
 
         # Genera la regexs para buscar en las líneas ('priority="x"')
         pmd_patterns = []
         for index in range(len(report)):
-            pmd_patterns.append(re.compile('priority=\"{}\"'.format(index)))
+            regex = "priority=\"%s\"" % (index + 1)
+            pmd_patterns.append(regex)
 
         # Busca en cada línea las regexs y aumenta los contadores si las encuentra
-        for line, report_index in zip(open(pmd_file), range(len(report))):
-            report[report_index] += len(re.findall(pmd_patterns[report_index], line))
+        with open(pmd_file_path) as pmd_file:
+            file_contents = pmd_file.read()
+            for report_index in range(len(report)):
+                matches_for_priority = re.findall(pmd_patterns[report_index], file_contents)
+                if matches_for_priority:
+                    report[report_index] += len(matches_for_priority)
 
         return report
 

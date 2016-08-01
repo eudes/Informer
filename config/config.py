@@ -19,7 +19,7 @@ def load_config(config_file_path):
     configspecs_folder = "configspecs/"
 
     if not config_file_path:
-        raise Exception;
+        raise Exception
 
     with open(configspecs_folder + "base.ini") as configspec:
         config = ConfigObj(config_file_path, configspec=configspec, interpolation="Template")
@@ -68,22 +68,26 @@ class Config(ConfigObj):
 
         super().__init__(configobj)
         self._config = configobj
-        self.projects = []
         self.output_folder = self._config['output_folder']
         self.last_report = self._config['last_report']
-
+        self.skip_commands = self._config['skip_commands']
         # Mediante el PluginManager se cargan dinámicamente las clases de los plugins
-        plugin_manager = PluginManager()
+        self.plugin_manager = PluginManager()
 
+    @property
+    def projects(self):
+        projects = []
         for index, project in enumerate(self._config['projects'].iteritems()):
             project_obj = Project(name=project[0], folder=project[1]['folder'])
 
             # Los plugins se cargan y se ejecutarán en el orden especificado en
             # la lista de la config
-            project_obj.plugins = [plugin_manager.get_plugin(plugin_name.lower())(self)
+            project_obj.plugins = [self.plugin_manager.get_plugin(plugin_name.lower())(self)
                                    for plugin_name in self._config['plugins']]
 
-            self.projects.append(project_obj)
+            projects.append(project_obj)
+
+        return projects
 
     def save_config(self, result_report_path):
         """

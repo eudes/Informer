@@ -1,8 +1,13 @@
 class Report:
-    def __init__(self, report = [], formatted_report = "" ):
+    # TODO: externalizar esta clase y usarla siempre que se use un report (para viejos informes, por ejemplo)
+
+    def __init__(self, report = None, formatted_report = "" ):
+        if report is None: report = []
         self.report = report
         self.formatted_report = formatted_report
 
+    def __repr__(self):
+        return str(self.__dict__)
 
 class BasePlugin:
     """
@@ -10,6 +15,7 @@ class BasePlugin:
     """
     makes_report = True
 
+    # noinspection PyUnusedLocal
     def __init__(self, config):
         pass
 
