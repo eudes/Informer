@@ -1,9 +1,13 @@
 import json
 import sys
+import logging
 
 from config import load_config
 from project import Project
 from utils import run_command
+
+logging.basicConfig(level=logging.DEBUG)
+_log = logging
 
 
 def main():
@@ -68,9 +72,6 @@ def exec_commands(projects):
             command_result = run_command(command)
             if command_result.returncode:
                 project.handle_plugin_error(plugin, 'Error al ejecutar el comando \n' + command)
-                print(command_result.stderr)
-                print(command_result.stdout)
-
 
 def parse_results(projects):
     for project in projects:
@@ -86,7 +87,6 @@ def parse_results(projects):
 
             except FileNotFoundError:
                 project.handle_plugin_error(plugin, 'Error al generar el informe, no se encontró el archivo generado por el plugin')
-                print('error file not found')
 
 
 def save_projects(projects, result_json_filepath):
@@ -95,21 +95,21 @@ def save_projects(projects, result_json_filepath):
 
 
 def save_report(config, projects):
-    print("Guardando reports")
+    _log.debug("Guardando reports")
     with open(config.output_folder + "/" + config.output_filename + ".txt", "w") as text_file:
 
         for project in projects:
-            print(project)
+            _log.debug(project.name)
             print(project.name, file=text_file)
 
             if project.error:
                 for plugin_name, error_desc in project.error_plugins:
                     print(": ".join([plugin_name, error_desc]), file=text_file)
-                    print(": ".join([plugin_name, error_desc]))
+                    _log.debug(": ".join([plugin_name, error_desc]))
 
             for plugin, result in project.reports.items():
                 print(result.formatted_report, file=text_file)
-                print(result.formatted_report)
-            print("")
+                _log.debug(result.formatted_report)
+            print("", file=text_file)
 
 main()
