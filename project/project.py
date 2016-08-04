@@ -14,14 +14,12 @@ class Project:
         self.error = error
         self.error_plugins = error_plugins
 
-
-
-    def handle_plugin_error(self, plugin):
+    def handle_plugin_error(self, plugin, error_desc):
         """
         Añade el error a la lista de errores y marca el projecto como fallido
         """
         self.error = True
-        self.error_plugins.append(plugin.__class__.__name__)
+        self.error_plugins.append((plugin.__class__.__name__, error_desc))
 
     def json_encode(self):
         return self.__dict__

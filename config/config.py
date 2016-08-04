@@ -65,7 +65,6 @@ class Config(ConfigObj):
         Las configuraciones de los plugins serán accesibles como parte
         del diccionario de la clase
         """
-
         super().__init__(configobj)
         self._config = configobj
         self.output_folder = self._config['output_folder']
@@ -73,9 +72,9 @@ class Config(ConfigObj):
         self.skip_commands = self._config['skip_commands']
         # Mediante el PluginManager se cargan dinámicamente las clases de los plugins
         self.plugin_manager = PluginManager()
+        self.projects = self._parse_projects()
 
-    @property
-    def projects(self):
+    def _parse_projects(self):
         projects = []
         for index, project in enumerate(self._config['projects'].iteritems()):
             project_obj = Project(name=project[0], folder=project[1]['folder'])
@@ -84,7 +83,6 @@ class Config(ConfigObj):
             # la lista de la config
             project_obj.plugins = [self.plugin_manager.get_plugin(plugin_name.lower())(self)
                                    for plugin_name in self._config['plugins']]
-
             projects.append(project_obj)
 
         return projects

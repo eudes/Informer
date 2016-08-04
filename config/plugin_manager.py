@@ -7,7 +7,7 @@ class InvalidPluginConfigError(BaseException):
 
 def get_subclasses(cls):
     """
-    Obtiene una lista de las subclases finales que heredan de la clase pasada
+    Obtiene una lista de las subclases finales (sin herencia propia) que heredan de la clase pasada
     """
 
     found_subclasses = []

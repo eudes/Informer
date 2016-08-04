@@ -6,7 +6,7 @@ from string import Template
 from plugins import BasePlugin, Report
 from utils import format_path
 
-__all__ = ["Pmd", "Checkstyle"]
+__all__ = ['Pmd', 'Checkstyle']
 
 
 class GoalNotImplementedError(BaseException):
@@ -18,7 +18,7 @@ class MavenGoal(BasePlugin):
     Clase base para las maven goals
     """
 
-    pom_filename = "/pom.xml"
+    pom_filename = '/pom.xml'
 
     def __init__(self, config):
         super().__init__(config)
@@ -30,24 +30,23 @@ class MavenGoal(BasePlugin):
         Esta plantilla acepta los parámetros folder y goal
         """
 
-        profiles = ""
+        profiles = ''
+        # TODO: arreglar el caso de que solo haya un valor (forcelist)
         if maven_config['profiles']:
-            profiles = " ".join(["-P", ",".join(maven_config['profiles'])])
+            profiles = ' '.join(['-P', ','.join(maven_config['profiles'])])
 
-        settings = ""
+        settings = ''
         if maven_config['settings_file']:
-            settings = " ".join(["-s", format_path(maven_config['settings_file'])])
-        else:
-            print(self.name + ": No se ha indicado un archivo de configuración de maven, usando la configuración por defecto")
+            settings = ' '.join(['-s', format_path(maven_config['settings_file'])])
 
-        pom_file = " ".join(["-f", "$folder" + self.pom_filename])
+        pom_file = ' '.join(['-f', '$folder' + self.pom_filename])
 
-        flags_array = ["-B"]
+        flags_array = ['-B']
         if maven_config['quiet']:
-            flags_array.append("-q")
-        flags = " ".join(flags_array)
+            flags_array.append('-q')
+        flags = ' '.join(flags_array)
 
-        base_template_string = " ".join(["mvn", flags, profiles, settings, pom_file, "$goal"])
+        base_template_string = ' '.join(['mvn', flags, profiles, settings, pom_file, '$goal'])
         return Template(base_template_string)
 
     def get_diff_report(self, new_report, old_report):
@@ -60,7 +59,7 @@ class MavenGoal(BasePlugin):
                 pass
 
         for index, value in enumerate(new_report):
-            diff = "X"
+            diff = 'X'
             if old_report_results:
                 try:
                     diff = value - old_report_results[index]
@@ -101,9 +100,9 @@ class MavenGoal(BasePlugin):
 
 
 class Checkstyle(MavenGoal):
-    report_document_path = "/target/site/checkstyle.rss"
-    command_maven_goal = "checkstyle:checkstyle"
-    template = "Checkstyle: {}/{}/{} ({}/{}/{})"
+    report_document_path = '/target/site/checkstyle.rss'
+    command_maven_goal = 'checkstyle:checkstyle'
+    template = 'Checkstyle: {}/{}/{} ({}/{}/{})'
 
     def parse_report(self, project_folder):
         """
@@ -111,32 +110,32 @@ class Checkstyle(MavenGoal):
         """
         report = [0, 0, 0]
 
-        checkstyle_file = (project_folder + self.report_document_path).replace("\\", "/")
+        checkstyle_file = (project_folder + self.report_document_path).replace('\\', '/')
 
         # Obtiene el XML
         tree = elementTree.parse(checkstyle_file)
         root = tree.getroot()
 
         # Busca el elemento que contiene los datos
-        for title in root.find("channel").find("item").find("title").itertext():
+        for title in root.find('channel').find('item').find('title').itertext():
             cs_text = title
             break
         else:
             # TODO: manejar bien esta excepción
             raise Exception
 
-        report[0] = int(re.findall("Errors: (\d+)", cs_text)[0])
-        report[1] = int(re.findall("Warnings: (\d+)", cs_text)[0])
-        report[2] = int(re.findall("Infos: (\d+)", cs_text)[0])
+        report[0] = int(re.findall('Errors: (\d+)', cs_text)[0])
+        report[1] = int(re.findall('Warnings: (\d+)', cs_text)[0])
+        report[2] = int(re.findall('Infos: (\d+)', cs_text)[0])
 
         return report
 
 
 # noinspection PyUnusedLocal
 class Pmd(MavenGoal):
-    report_document_path = "/target/pmd.xml"
-    command_maven_goal = "pmd:pmd"
-    template = "PMD: {}/{}/{} ({}/{}/{})"
+    report_document_path = '/target/pmd.xml'
+    command_maven_goal = 'pmd:pmd'
+    template = 'PMD: {}/{}/{} ({}/{}/{})'
 
     def __init__(self, config):
         super().__init__(config)
@@ -150,10 +149,10 @@ class Pmd(MavenGoal):
 
         pmd_file_path = (project_folder + self.report_document_path).replace('\\', '/')
 
-        # Genera la regexs para buscar en las líneas ('priority="x"')
+        # Genera la regexs para buscar en las líneas ('priority='x'')
         pmd_patterns = []
         for index in range(len(report)):
-            regex = "priority=\"%s\"" % (index + 1)
+            regex = 'priority=\'%s\'' % (index + 1)
             pmd_patterns.append(regex)
 
         # Busca en cada línea las regexs y aumenta los contadores si las encuentra

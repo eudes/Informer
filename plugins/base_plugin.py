@@ -1,7 +1,7 @@
 class Report:
     # TODO: externalizar esta clase y usarla siempre que se use un report (para viejos informes, por ejemplo)
 
-    def __init__(self, report = None, formatted_report = "" ):
+    def __init__(self, report=None, formatted_report=""):
         if report is None: report = []
         self.report = report
         self.formatted_report = formatted_report
@@ -9,14 +9,17 @@ class Report:
     def __repr__(self):
         return str(self.__dict__)
 
+
 class BasePlugin:
     """
     Interfaz/clase base para los plugins
     """
     makes_report = True
+    makes_command = True
 
     # noinspection PyUnusedLocal
     def __init__(self, config):
+        self.error = False
         pass
 
     @property
@@ -44,7 +47,8 @@ class BasePlugin:
         """
         Genera el comando para lanzar el plugin
         """
-        raise NotImplementedError
+        if self.makes_command:
+            raise NotImplementedError
 
     def parse_report(self, project_folder):
         """
