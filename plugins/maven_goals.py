@@ -152,12 +152,14 @@ class Pmd(MavenGoal):
         # Genera la regexs para buscar en las líneas ('priority='x'')
         pmd_patterns = []
         for index in range(len(report)):
-            regex = 'priority=\'%s\'' % (index + 1)
+            regex = 'priority=\"%s\"' % (index + 1)
             pmd_patterns.append(regex)
 
         # Busca en cada línea las regexs y aumenta los contadores si las encuentra
-        for line, report_index in zip(open(pmd_file_path).readlines(), range(len(report))):
-            report[report_index] += len(re.findall(pmd_patterns[report_index], line))
+        with open(pmd_file_path) as pmd_file:
+            for line in pmd_file.readlines():
+                for report_index in range(len(report)):
+                    report[report_index] += len(re.findall(pmd_patterns[report_index], line))
 
         return report
 
