@@ -156,12 +156,8 @@ class Pmd(MavenGoal):
             pmd_patterns.append(regex)
 
         # Busca en cada línea las regexs y aumenta los contadores si las encuentra
-        with open(pmd_file_path) as pmd_file:
-            file_contents = pmd_file.read()
-            for report_index in range(len(report)):
-                matches_for_priority = re.findall(pmd_patterns[report_index], file_contents)
-                if matches_for_priority:
-                    report[report_index] += len(matches_for_priority)
+        for line, report_index in zip(open(pmd_file_path), range(len(report))):
+            report[report_index] += len(re.findall(pmd_patterns[report_index], line))
 
         return report
 
