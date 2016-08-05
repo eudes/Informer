@@ -44,6 +44,8 @@ class MavenGoal(BasePlugin):
         flags_array = ['-B']
         if maven_config['quiet']:
             flags_array.append('-q')
+        if maven_config['flags']:
+            flags_array.extend(maven_config['flags'])
         flags = ' '.join(flags_array)
 
         base_template_string = ' '.join(['mvn', flags, profiles, settings, pom_file, '$goal'])
@@ -62,7 +64,8 @@ class MavenGoal(BasePlugin):
             diff = 'X'
             if old_report_results:
                 try:
-                    diff = value - old_report_results[index]
+                    if old_report_results[index] != 'X':
+                        diff = value - old_report_results[index]
                 except KeyError:
                     pass
 
