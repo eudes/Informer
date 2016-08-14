@@ -60,8 +60,6 @@ class Config(ConfigObj):
     Configuración base cargada del archivo de configuración
     """
 
-    output_filename = "informe_" + time.strftime("%Y%m%d-%H%M%S")
-
     def __init__(self, configobj):
         """
         Setea los valores globales de la configuración como propiedades.
@@ -70,6 +68,8 @@ class Config(ConfigObj):
         """
         super().__init__(configobj)
         self._config = configobj
+        self.report_filename_prefix = self._config['report_filename_prefix']
+        self.output_filename = self.report_filename_prefix + '_'+ time.strftime("%Y%m%d-%H%M%S")
         self.output_folder = self._config['output_folder']
         self.last_report = self._config['last_report']
         self.skip_commands = self._config['skip_commands']

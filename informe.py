@@ -32,7 +32,7 @@ def main():
     parse_results(projects)
 
     # Guarda el informe en formato json
-    result_json_filepath = config.output_folder + "/" + config.output_filename + ".json"
+    result_json_filepath = config.output_folder + "\\" + config.output_filename + ".json"
     save_projects(projects, result_json_filepath)
 
     # Guarda el informe en formato txt
@@ -149,13 +149,7 @@ def save_report(config, projects):
 
 def sum_reports(projects):
     """
-    TODO: PROTOTIPO
-    Suma todos los resultados de los projectos
-    Objetivo:
-    Sumar los reports de los projects agrupados
-
-
-    TODO: return el objeto reports para guardarlo en el project group
+    Suma los reports de la lista de proyectos pasada
     """
     plugin_reports = {}
     for project in projects:
