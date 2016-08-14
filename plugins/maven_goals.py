@@ -3,7 +3,7 @@ import xml.etree.ElementTree as elementTree
 
 from string import Template
 
-from plugins import BasePlugin, Report
+from plugins import BasePlugin, ReportParseError, Report
 from utils import format_path
 
 __all__ = ['Pmd', 'Checkstyle']
@@ -11,7 +11,6 @@ __all__ = ['Pmd', 'Checkstyle']
 
 class GoalNotImplementedError(BaseException):
     pass
-
 
 class MavenGoal(BasePlugin):
     """
@@ -124,8 +123,7 @@ class Checkstyle(MavenGoal):
             cs_text = title
             break
         else:
-            # TODO: manejar bien esta excepción
-            raise Exception
+            raise ReportParseError('No se encontraron resultados en el archivo checkstyle')
 
         report[0] = int(re.findall('Errors: (\d+)', cs_text)[0])
         report[1] = int(re.findall('Warnings: (\d+)', cs_text)[0])
