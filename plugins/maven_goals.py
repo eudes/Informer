@@ -3,7 +3,7 @@ import xml.etree.ElementTree as elementTree
 
 from string import Template
 
-from plugins import BasePlugin, Report
+from plugins import BasePlugin, ReportParseError, Report
 from utils import format_path
 
 __all__ = ['Pmd', 'Checkstyle']
@@ -11,7 +11,6 @@ __all__ = ['Pmd', 'Checkstyle']
 
 class GoalNotImplementedError(BaseException):
     pass
-
 
 class MavenGoal(BasePlugin):
     """

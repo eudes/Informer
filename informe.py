@@ -35,8 +35,6 @@ def main():
     result_json_filepath = config.output_folder + "/" + config.output_filename + ".json"
     save_projects(projects, result_json_filepath)
 
-    # sum_all_reports(projects)
-
     # Guarda el informe en formato txt
     save_report(config, projects)
 
@@ -76,7 +74,6 @@ def exec_commands(projects):
             if command_result.returncode:
                 project.handle_plugin_error(plugin, 'Error al ejecutar el comando \n' + command)
 
-
 def parse_results(projects):
     for project in projects:
         for plugin in project.plugins:
@@ -90,10 +87,7 @@ def parse_results(projects):
                 project.reports[plugin.name] = report
 
             except FileNotFoundError:
-                project.handle_plugin_error(plugin,
-                                            'Error al generar el informe, no se encontró el archivo generado por el plugin')
-            except ReportParseError as error:
-                project.handle_plugin_error(plugin, error)
+                project.handle_plugin_error(plugin, 'Error al generar el informe, no se encontró el archivo generado por el plugin')
 
 
 def save_projects(projects, result_json_filepath):
@@ -118,23 +112,5 @@ def save_report(config, projects):
                 print(result.formatted_report, file=text_file)
                 _log.debug(result.formatted_report)
             print("", file=text_file)
-
-
-def sum_all_reports(projects):
-    plugin_reports = {}
-    for project in projects:
-        if project.error:
-            _log.debug("Error en: %s" % project.name)
-            continue
-
-        for plugin, report in project.reports.items():
-            if not plugin in plugin_reports:
-                plugin_reports[plugin] = report.report
-            else:
-                for index in range(len(plugin_reports[plugin])):
-                    plugin_reports[plugin][index] += report.report[index]
-
-    _log.debug(plugin_reports)
-
 
 main()
