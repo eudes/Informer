@@ -124,8 +124,7 @@ class Checkstyle(MavenGoal):
             cs_text = title
             break
         else:
-            # TODO: manejar bien esta excepción
-            raise Exception
+            raise ReportParseError('No se encontraron resultados en el archivo checkstyle')
 
         report[0] = int(re.findall('Errors: (\d+)', cs_text)[0])
         report[1] = int(re.findall('Warnings: (\d+)', cs_text)[0])
@@ -152,7 +151,7 @@ class Pmd(MavenGoal):
 
         pmd_file_path = (project_folder + self.report_document_path).replace('\\', '/')
 
-        # Genera la regexs para buscar en las líneas ('priority='x'')
+        # Genera la regexs para buscar en las líneas ('priority="x"')
         pmd_patterns = []
         for index in range(len(report)):
             regex = 'priority=\"%s\"' % (index + 1)

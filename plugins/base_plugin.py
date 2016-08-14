@@ -1,3 +1,10 @@
+class ReportParseError(BaseException):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return self.value
+
 class Report:
     # TODO: externalizar esta clase y usarla siempre que se use un report (para viejos informes, por ejemplo)
 

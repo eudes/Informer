@@ -87,9 +87,10 @@ class Config(ConfigObj):
 
         return projects
 
-    def save_config(self, result_report_path):
+    def save_config(self, result_report_path, indent=''):
         """
         Añade la ubicación del último informe y guarda el archivo de configuración
         """
+        self._config.indent_type = indent
         self._config['last_report'] = result_report_path
         self._config.write()
