@@ -32,19 +32,19 @@ class MavenGoal(BasePlugin):
 
         profiles = ''
         # TODO: arreglar el caso de que solo haya un valor (forcelist)
-        if maven_config['profiles']:
+        if 'profiles' in maven_config:
             profiles = ' '.join(['-P', ','.join(maven_config['profiles'])])
 
         settings = ''
-        if maven_config['settings_file']:
+        if 'settings_file' in maven_config:
             settings = ' '.join(['-s', format_path(maven_config['settings_file'])])
 
         pom_file = ' '.join(['-f', '$folder' + self.pom_filename])
 
         flags_array = ['-B']
-        if maven_config['quiet']:
+        if 'quiet' in maven_config:
             flags_array.append('-q')
-        if maven_config['flags']:
+        if 'flags' in maven_config:
             flags_array.extend(maven_config['flags'])
         flags = ' '.join(flags_array)
 
@@ -54,11 +54,10 @@ class MavenGoal(BasePlugin):
     def get_diff_report(self, new_report, old_report):
         diff_report = new_report[:]
         old_report_results = None
-        if old_report:
-            try:
-                old_report_results = old_report['report']
-            except KeyError:
-                pass
+        if old_report and 'report' in old_report:
+            old_report_results = old_report['report']
+        else:
+            pass
 
         for index, value in enumerate(new_report):
             diff = 'X'

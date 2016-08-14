@@ -15,13 +15,13 @@ class Svn(BasePlugin):
 
         project_folder = format_path(project_folder)
 
-        if self.svn_config.get('revert'):
+        if 'revert' in self.svn_config:
             result_command += base_command + " revert -R " + project_folder + "; "
 
         params = []
-        if self.svn_config.get('force_update'):
+        if 'force_update' in self.svn_config:
             params.append('update --force')
-        elif self.svn_config.get('update'):
+        elif 'update' in self.svn_config:
             params.append('update')
 
         result_command += " ".join([base_command, *params, project_folder])

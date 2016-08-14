@@ -29,7 +29,7 @@ def load_config(config_file_path):
     for section in set(chain(config.sections, config['plugins'])):
         try:
             with open(configspecs_folder + section + ".ini") as section_conf:
-                if config.get(section):
+                if section in config:
                     config[section].configspec = ConfigObj(configspec=section_conf, interpolation="Template").configspec
                 else:
                     # TODO: crear una nueva sección a partir de la configspec correspondiente

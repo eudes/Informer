@@ -22,7 +22,7 @@ def main():
     projects = config.projects
     # Carga el último informe y lo mapea a los nuevos
     if config.last_report:
-        setup_projects(config, projects)
+        map_new_to_old_projects(config, projects)
 
     # Ejecuta los comandos de los plugins
     if not config.skip_commands:
@@ -35,8 +35,6 @@ def main():
     result_json_filepath = config.output_folder + "/" + config.output_filename + ".json"
     save_projects(projects, result_json_filepath)
 
-    # sum_all_reports(projects)
-
     # Guarda el informe en formato txt
     save_report(config, projects)
 
@@ -44,7 +42,7 @@ def main():
     config.save_config(result_report_path=result_json_filepath)
 
 
-def setup_projects(config, projects):
+def map_new_to_old_projects(config, projects):
     """
     Carga el último report indicado en la config y lo asigna a los projects correspondientes
     para poder comparar luego los resultados
