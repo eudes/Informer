@@ -4,7 +4,7 @@ from configobj import ConfigObj
 from validate import Validator
 
 from config import PluginManager
-from project import Project
+from project import Project, ProjectGroup
 
 
 class PluginConfigNotFoundError(BaseException):
@@ -25,7 +25,7 @@ def load_config(config_file_path):
         config = ConfigObj(config_file_path, configspec=configspec, interpolation="Template")
 
     # Por cada section y por cada plugin indicado en la config intenta cargar una plantilla
-    # con el mismo nombre de las configspecs
+    # con el mismo nombre
     for section in set(chain(config.sections, config['plugins'])):
         try:
             with open(configspecs_folder + section + ".ini") as section_conf:
@@ -79,16 +79,35 @@ class Config(ConfigObj):
 
     def _parse_projects(self):
         projects = []
-        for index, project in enumerate(self._config['projects'].iteritems()):
-            project_obj = Project(name=project[0], folder=project[1]['folder'])
+        for index, project_tuple in enumerate(self._config['projects'].iteritems()):
+            project_name = project_tuple[0]
+            project = project_tuple[1]
 
-            # Los plugins se cargan y se ejecutarán en el orden especificado en
-            # la lista de la config
-            project_obj.plugins = [self.plugin_manager.get_plugin(plugin_name.lower())(self)
-                                   for plugin_name in self._config['plugins']]
-            projects.append(project_obj)
+            project_instance = self._get_project(project_name, project)
+            projects.append(project_instance)
 
         return projects
+
+    def _get_project(self, project_name, project):
+        # Si contiene secciones, es un ProjectGroup
+        if project.sections:
+            project_instance = ProjectGroup(name=project_name)
+
+            subprojects = []
+            for sub_project_name in project.sections:
+                subprojects.append(self._get_project(sub_project_name, project[sub_project_name]))
+
+            project_instance.subprojects = subprojects
+
+        else:
+            project_instance = Project(name=project_name, folder=project['folder'])
+
+        # Los plugins se cargan y se ejecutarán en el orden especificado en
+        # la lista de la config
+        project_instance.plugins = [self.plugin_manager.get_plugin(plugin_name.lower())(self)
+                               for plugin_name in self._config['plugins']]
+
+        return project_instance
 
     def save_config(self, result_report_path, indent=''):
         """

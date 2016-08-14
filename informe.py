@@ -3,7 +3,7 @@ import sys
 import logging
 
 from config import load_config
-from project import Project
+from project import Project, ProjectGroup
 from utils import run_command
 from plugins import ReportParseError
 
@@ -68,18 +68,24 @@ def exec_commands(projects):
     Ejecuta los comandos para los plugins activos de cada project
     """
     for project in projects:
-        if project.error:
-            continue
+        if isinstance(project, ProjectGroup):
 
-        for plugin in project.plugins:
-            if not plugin.makes_command:
-                continue
+            exec_commands(project.subprojects)
 
-            command = plugin.get_build_command(project_folder=project.folder)
-            print(command)
-            command_result = run_command(command)
-            if command_result.returncode:
-                project.handle_plugin_error(plugin, 'Error al ejecutar el comando \n' + command)
+        else:
+
+            for plugin in project.plugins:
+                if not plugin.makes_command:
+                    continue
+
+                if project.error:
+                    break
+
+                command = plugin.get_build_command(project_folder=project.folder)
+                print(command)
+                command_result = run_command(command)
+                if command_result.returncode:
+                    project.handle_plugin_error(plugin, 'Error al ejecutar el comando \n' + command)
 
 
 def parse_results(projects):
@@ -87,21 +93,28 @@ def parse_results(projects):
     LLama a la función parse de cada plugin para generar los reports
     """
     for project in projects:
-        for plugin in project.plugins:
-            if not plugin.makes_report or project.error:
-                continue
+        if isinstance(project, ProjectGroup):
 
-            old_report = project.old_reports.get(plugin.name, None)
-            try:
-                report = plugin.make_report(project_folder=project.folder,
-                                            old_report=old_report)
-                project.reports[plugin.name] = report
+            parse_results(project.subprojects)
+            project.reports = sum_reports(project.subprojects)
 
-            except FileNotFoundError:
-                project.handle_plugin_error(plugin,
-                                            'Error al generar el informe, no se encontró el archivo generado por el plugin')
-            except ReportParseError as error:
-                project.handle_plugin_error(plugin, error)
+        else:
+
+            for plugin in project.plugins:
+                if not plugin.makes_report or project.error:
+                    continue
+
+                old_report = project.old_reports.get(plugin.name, None)
+                try:
+                    report = plugin.make_report(project_folder=project.folder,
+                                                old_report=old_report)
+                    project.reports[plugin.name] = report
+
+                except FileNotFoundError:
+                    project.handle_plugin_error(plugin,
+                                                'Error al generar el informe, no se encontró el archivo generado por el plugin')
+                except ReportParseError as error:
+                    project.handle_plugin_error(plugin, error)
 
 
 def save_projects(projects, result_json_filepath):
@@ -134,12 +147,15 @@ def save_report(config, projects):
             print("", file=text_file)
 
 
-def sum_all_reports(projects):
+def sum_reports(projects):
     """
     TODO: PROTOTIPO
     Suma todos los resultados de los projectos
     Objetivo:
     Sumar los reports de los projects agrupados
+
+
+    TODO: return el objeto reports para guardarlo en el project group
     """
     plugin_reports = {}
     for project in projects:
@@ -148,13 +164,13 @@ def sum_all_reports(projects):
             continue
 
         for plugin, report in project.reports.items():
-            if not plugin in plugin_reports:
+            if plugin not in plugin_reports:
                 plugin_reports[plugin] = report.report
             else:
                 for index in range(len(plugin_reports[plugin])):
                     plugin_reports[plugin][index] += report.report[index]
 
-    _log.debug(plugin_reports)
+    return plugin_reports
 
 
 main()

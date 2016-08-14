@@ -1,4 +1,4 @@
-class Project:
+class Project(object):
 
     def __init__(self, name, folder, plugins=None, reports=None, old_reports=None, error=False, error_plugins=None):
         if plugins is None: plugins = []
