@@ -3,7 +3,7 @@ import sys
 import logging
 
 from config import load_config
-from project import Project, ProjectGroup
+from project import Project, ProjectGroup, Report
 from utils import run_command
 from plugins import ReportParseError
 
@@ -96,7 +96,14 @@ def parse_results(projects):
         if isinstance(project, ProjectGroup):
 
             parse_results(project.subprojects)
-            project.reports = sum_reports(project.subprojects)
+            report_dict = sum_reports(project.subprojects)
+
+            for plugin in project.plugins:
+                if plugin.name in report_dict:
+                    formatted_report = plugin.format_report(
+                        report_dict[plugin.name], project.old_reports[plugin.name])
+                    project.reports[plugin.name] = Report(report=report_dict[plugin.name],
+                                                          formatted_report=formatted_report)
 
         else:
 

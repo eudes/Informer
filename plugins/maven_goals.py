@@ -3,7 +3,8 @@ import xml.etree.ElementTree as elementTree
 
 from string import Template
 
-from plugins import BasePlugin, ReportParseError, Report
+from project import Report
+from plugins import BasePlugin, ReportParseError
 from utils import format_path
 
 __all__ = ['Pmd', 'Checkstyle']
@@ -74,10 +75,12 @@ class MavenGoal(BasePlugin):
 
     def make_report(self, project_folder, old_report):
         new_report = self.parse_report(project_folder)
-        diff_report = self.get_diff_report(new_report, old_report)
-
-        formatted_report = self.template.format(*diff_report, *new_report)
+        formatted_report = self.format_report(new_report, old_report)
         return Report(report=new_report, formatted_report=formatted_report)
+
+    def format_report(self, new_report, old_report):
+        diff_report = self.get_diff_report(new_report, old_report)
+        return self.template.format(*diff_report, *new_report)
 
     def get_build_command(self, project_folder):
         return self.mvn_command_template.substitute(folder=format_path(project_folder),
