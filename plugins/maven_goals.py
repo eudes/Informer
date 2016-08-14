@@ -12,6 +12,7 @@ __all__ = ['Pmd', 'Checkstyle']
 class GoalNotImplementedError(BaseException):
     pass
 
+
 class MavenGoal(BasePlugin):
     """
     Clase base para las maven goals
