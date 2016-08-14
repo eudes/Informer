@@ -19,11 +19,13 @@ def load_config(config_file_path):
     configspecs_folder = "configspecs/"
 
     if not config_file_path:
-        raise Exception
+        raise Exception("Es necesario indicar un fichero de configuración")
 
     with open(configspecs_folder + "base.ini") as configspec:
         config = ConfigObj(config_file_path, configspec=configspec, interpolation="Template")
 
+    # Por cada section y por cada plugin indicado en la config intenta cargar una plantilla
+    # con el mismo nombre de las configspecs
     for section in set(chain(config.sections, config['plugins'])):
         try:
             with open(configspecs_folder + section + ".ini") as section_conf:
@@ -42,6 +44,7 @@ def load_config(config_file_path):
         except FileNotFoundError:
             continue
 
+    # Valida y setea los parámetros por defecto de la config
     validator = Validator()
     config.validate(validator)
 

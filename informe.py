@@ -45,6 +45,10 @@ def main():
 
 
 def setup_projects(config, projects):
+    """
+    Carga el último report indicado en la config y lo asigna a los projects correspondientes
+    para poder comparar luego los resultados
+    """
     with open(config.last_report, mode='r') as old_projects_file:
         old_projects_json = json.load(old_projects_file)
 
@@ -62,6 +66,9 @@ def setup_projects(config, projects):
 
 
 def exec_commands(projects):
+    """
+    Ejecuta los comandos para los plugins activos de cada project
+    """
     for project in projects:
         if project.error:
             continue
@@ -78,6 +85,9 @@ def exec_commands(projects):
 
 
 def parse_results(projects):
+    """
+    LLama a la función parse de cada plugin para generar los reports
+    """
     for project in projects:
         for plugin in project.plugins:
             if not plugin.makes_report or project.error:
@@ -97,11 +107,17 @@ def parse_results(projects):
 
 
 def save_projects(projects, result_json_filepath):
+    """
+    Guarda los projects en formato json para poder compararlos en el futuro
+    """
     with open(result_json_filepath, "w") as json_file:
         json.dump(projects, json_file, default=Project.json_encode, indent=4)
 
 
 def save_report(config, projects):
+    """
+    Guarda el informe en formato de texto
+    """
     _log.debug("Guardando reports")
     with open(config.output_folder + "/" + config.output_filename + ".txt", "w") as text_file:
 
@@ -121,6 +137,12 @@ def save_report(config, projects):
 
 
 def sum_all_reports(projects):
+    """
+    TODO: PROTOTIPO
+    Suma todos los resultados de los projectos
+    Objetivo:
+    Sumar los reports de los projects agrupados
+    """
     plugin_reports = {}
     for project in projects:
         if project.error:
