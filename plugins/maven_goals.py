@@ -3,7 +3,8 @@ import xml.etree.ElementTree as elementTree
 
 from string import Template
 
-from plugins import BasePlugin, ReportParseError, Report
+from project import Report
+from plugins import BasePlugin, ReportParseError
 from utils import format_path
 
 __all__ = ['Pmd', 'Checkstyle']
@@ -32,19 +33,19 @@ class MavenGoal(BasePlugin):
 
         profiles = ''
         # TODO: arreglar el caso de que solo haya un valor (forcelist)
-        if maven_config['profiles']:
+        if 'profiles' in maven_config:
             profiles = ' '.join(['-P', ','.join(maven_config['profiles'])])
 
         settings = ''
-        if maven_config['settings_file']:
+        if 'settings_file' in maven_config:
             settings = ' '.join(['-s', format_path(maven_config['settings_file'])])
 
         pom_file = ' '.join(['-f', '$folder' + self.pom_filename])
 
         flags_array = ['-B']
-        if maven_config['quiet']:
+        if 'quiet' in maven_config:
             flags_array.append('-q')
-        if maven_config['flags']:
+        if 'flags' in maven_config:
             flags_array.extend(maven_config['flags'])
         flags = ' '.join(flags_array)
 
@@ -54,11 +55,10 @@ class MavenGoal(BasePlugin):
     def get_diff_report(self, new_report, old_report):
         diff_report = new_report[:]
         old_report_results = None
-        if old_report:
-            try:
-                old_report_results = old_report['report']
-            except KeyError:
-                pass
+        if old_report and 'report' in old_report:
+            old_report_results = old_report['report']
+        else:
+            pass
 
         for index, value in enumerate(new_report):
             diff = 'X'
@@ -75,10 +75,12 @@ class MavenGoal(BasePlugin):
 
     def make_report(self, project_folder, old_report):
         new_report = self.parse_report(project_folder)
-        diff_report = self.get_diff_report(new_report, old_report)
-
-        formatted_report = self.template.format(*diff_report, *new_report)
+        formatted_report = self.format_report(new_report, old_report)
         return Report(report=new_report, formatted_report=formatted_report)
+
+    def format_report(self, new_report, old_report):
+        diff_report = self.get_diff_report(new_report, old_report)
+        return self.template.format(*diff_report, *new_report)
 
     def get_build_command(self, project_folder):
         return self.mvn_command_template.substitute(folder=format_path(project_folder),

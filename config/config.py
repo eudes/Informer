@@ -25,11 +25,11 @@ def load_config(config_file_path):
         config = ConfigObj(config_file_path, configspec=configspec, interpolation="Template")
 
     # Por cada section y por cada plugin indicado en la config intenta cargar una plantilla
-    # con el mismo nombre de las configspecs
+    # con el mismo nombre
     for section in set(chain(config.sections, config['plugins'])):
         try:
             with open(configspecs_folder + section + ".ini") as section_conf:
-                if config.get(section):
+                if section in config:
                     config[section].configspec = ConfigObj(configspec=section_conf, interpolation="Template").configspec
                 else:
                     # TODO: crear una nueva sección a partir de la configspec correspondiente
@@ -60,8 +60,6 @@ class Config(ConfigObj):
     Configuración base cargada del archivo de configuración
     """
 
-    output_filename = "informe_" + time.strftime("%Y%m%d-%H%M%S")
-
     def __init__(self, configobj):
         """
         Setea los valores globales de la configuración como propiedades.
@@ -70,6 +68,8 @@ class Config(ConfigObj):
         """
         super().__init__(configobj)
         self._config = configobj
+        self.report_filename_prefix = self._config['report_filename_prefix']
+        self.output_filename = self.report_filename_prefix + '_'+ time.strftime("%Y%m%d-%H%M%S")
         self.output_folder = self._config['output_folder']
         self.last_report = self._config['last_report']
         self.skip_commands = self._config['skip_commands']
@@ -79,14 +79,17 @@ class Config(ConfigObj):
 
     def _parse_projects(self):
         projects = []
-        for index, project in enumerate(self._config['projects'].iteritems()):
-            project_obj = Project(name=project[0], folder=project[1]['folder'])
+        for index, project_tuple in enumerate(self._config['projects'].iteritems()):
+            project_name = project_tuple[0]
+            project = project_tuple[1]
+
+            project_instance = Project(name=project_name, folder=project.get('folder'))
 
             # Los plugins se cargan y se ejecutarán en el orden especificado en
             # la lista de la config
-            project_obj.plugins = [self.plugin_manager.get_plugin(plugin_name.lower())(self)
-                                   for plugin_name in self._config['plugins']]
-            projects.append(project_obj)
+            project_instance.plugins = [self.plugin_manager.get_plugin(plugin_name.lower())(self)
+                                        for plugin_name in self._config['plugins']]
+            projects.append(project_instance)
 
         return projects
 
