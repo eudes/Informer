@@ -3,10 +3,18 @@ from project import Project
 
 class ProjectGroup(Project):
 
-    def __init__(self, *args, **kwargs):
-        self.subprojects = []
+    def __init__(self, _plugins=None, subprojects=None, *args, **kwargs):
+        if subprojects is None: subprojects = []
+        if not 'folder' in kwargs: kwargs['folder'] = None
         self._plugins = []
-        super().__init__(*args, folder=None, **kwargs)
+        if subprojects:
+            self.subprojects = []
+            for subproject in subprojects:
+                project = Project(**subproject)
+                self.subprojects.append(project)
+        else:
+            self.subprojects = subprojects
+        super().__init__(*args, **kwargs)
 
     @property
     def plugins(self):

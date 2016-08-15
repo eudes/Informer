@@ -50,10 +50,7 @@ def map_new_to_old_projects(config, projects):
     with open(config.last_report, mode='r') as old_projects_file:
         old_projects_json = json.load(old_projects_file)
 
-    old_projects = {}
-    for project_json in old_projects_json:
-        old_project = Project(**project_json)
-        old_projects[old_project.name] = old_project
+    old_projects = make_projects(old_projects_json)
 
     for new_project in projects:
         try:
@@ -61,6 +58,20 @@ def map_new_to_old_projects(config, projects):
             new_project.old_reports.update(old_project.reports)
         except KeyError:
             continue
+
+def make_projects(projects_json):
+    projects = {}
+    for project_json in projects_json:
+        if 'subprojects' in project_json:
+            subprojects = make_projects(project_json['subprojects'])
+            old_project = ProjectGroup(**project_json)
+            old_project.subprojects = subprojects
+        else:
+            old_project = Project(**project_json)
+
+        projects[old_project.name] = old_project
+
+    return projects
 
 
 def exec_commands(projects):
@@ -100,8 +111,11 @@ def parse_results(projects):
 
             for plugin in project.plugins:
                 if plugin.name in report_dict:
+                    old_report = None
+                    if old_report and plugin.name in old_report:
+                        old_report = project.old_reports[plugin.name]
                     formatted_report = plugin.format_report(
-                        report_dict[plugin.name], project.old_reports[plugin.name])
+                        report_dict[plugin.name], old_report)
                     project.reports[plugin.name] = Report(report=report_dict[plugin.name],
                                                           formatted_report=formatted_report)
 
