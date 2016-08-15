@@ -171,12 +171,12 @@ def sum_reports(projects):
             _log.debug("Error en: %s" % project.name)
             continue
 
-        for plugin, report in project.reports.items():
-            if plugin not in plugin_reports:
-                plugin_reports[plugin] = report.report
+        for plugin_name, report in project.reports.items():
+            if plugin_name not in plugin_reports:
+                plugin_reports[plugin_name] = report.report
             else:
-                for index in range(len(plugin_reports[plugin])):
-                    plugin_reports[plugin][index] += report.report[index]
+                for index in range(len(plugin_reports[plugin_name])):
+                    plugin_reports[plugin_name][index] += report.report[index]
 
     return plugin_reports
 
