@@ -3,7 +3,7 @@ import sys
 import logging
 
 from config import load_config
-from project import Project, ProjectGroup, Report
+from project import Project, Report
 from utils import run_command
 from plugins import ReportParseError
 
@@ -50,7 +50,10 @@ def map_new_to_old_projects(config, projects):
     with open(config.last_report, mode='r') as old_projects_file:
         old_projects_json = json.load(old_projects_file)
 
-    old_projects = make_projects(old_projects_json)
+    old_projects = {}
+    for old_project_json in old_projects_json:
+        old_project = Project(**old_project_json)
+        old_projects[old_project.name] = old_project
 
     for new_project in projects:
         try:
@@ -59,27 +62,13 @@ def map_new_to_old_projects(config, projects):
         except KeyError:
             continue
 
-def make_projects(projects_json):
-    projects = {}
-    for project_json in projects_json:
-        if 'subprojects' in project_json:
-            subprojects = make_projects(project_json['subprojects'])
-            old_project = ProjectGroup(**project_json)
-            old_project.subprojects = subprojects
-        else:
-            old_project = Project(**project_json)
-
-        projects[old_project.name] = old_project
-
-    return projects
-
 
 def exec_commands(projects):
     """
-    Ejecuta los comandos para los plugins activos de cada project
+    Ejecuta los comandos para los plugins activos de cada proyecto
     """
     for project in projects:
-        if isinstance(project, ProjectGroup):
+        if project.subprojects:
 
             exec_commands(project.subprojects)
 
@@ -104,20 +93,24 @@ def parse_results(projects):
     LLama a la función parse de cada plugin para generar los reports
     """
     for project in projects:
-        if isinstance(project, ProjectGroup):
+        if project.subprojects:
 
             parse_results(project.subprojects)
-            report_dict = sum_reports(project.subprojects)
+            plugin_report_dict = sum_reports(project.subprojects)
 
+            # Genera el report formateado
             for plugin in project.plugins:
-                if plugin.name in report_dict:
-                    old_report = None
-                    if old_report and plugin.name in old_report:
-                        old_report = project.old_reports[plugin.name]
+                if plugin.name in plugin_report_dict:
+
+                    old_report = project.old_reports.get(plugin.name, None)
+                    old_unformatted_report = None
+                    if old_report:
+                        old_unformatted_report = old_report.get('report')
                     formatted_report = plugin.format_report(
-                        report_dict[plugin.name], old_report)
-                    project.reports[plugin.name] = Report(report=report_dict[plugin.name],
-                                                          formatted_report=formatted_report)
+                        new_report=plugin_report_dict[plugin.name], old_report=old_unformatted_report)
+
+                    project.reports[plugin.name] = Report(report=plugin_report_dict[plugin.name],
+                                                              formatted_report=formatted_report)
 
         else:
 

@@ -4,7 +4,7 @@ from configobj import ConfigObj
 from validate import Validator
 
 from config import PluginManager
-from project import Project, ProjectGroup
+from project import Project
 
 
 class PluginConfigNotFoundError(BaseException):
@@ -83,31 +83,15 @@ class Config(ConfigObj):
             project_name = project_tuple[0]
             project = project_tuple[1]
 
-            project_instance = self._get_project(project_name, project)
+            project_instance = Project(name=project_name, folder=project.get('folder'))
+
+            # Los plugins se cargan y se ejecutarán en el orden especificado en
+            # la lista de la config
+            project_instance.plugins = [self.plugin_manager.get_plugin(plugin_name.lower())(self)
+                                        for plugin_name in self._config['plugins']]
             projects.append(project_instance)
 
         return projects
-
-    def _get_project(self, project_name, project):
-        # Si contiene secciones, es un ProjectGroup
-        if project.sections:
-            project_instance = ProjectGroup(name=project_name)
-
-            subprojects = []
-            for sub_project_name in project.sections:
-                subprojects.append(self._get_project(sub_project_name, project[sub_project_name]))
-
-            project_instance.subprojects = subprojects
-
-        else:
-            project_instance = Project(name=project_name, folder=project['folder'])
-
-        # Los plugins se cargan y se ejecutarán en el orden especificado en
-        # la lista de la config
-        project_instance.plugins = [self.plugin_manager.get_plugin(plugin_name.lower())(self)
-                               for plugin_name in self._config['plugins']]
-
-        return project_instance
 
     def save_config(self, result_report_path, indent=''):
         """
