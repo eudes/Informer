@@ -83,7 +83,14 @@ class Config(ConfigObj):
             project_name = project_tuple[0]
             project = project_tuple[1]
 
-            project_instance = Project(name=project_name, folder=project.get('folder'))
+            subsections = []
+            if project.sections:
+                for section in project.sections:
+                    # TODO: hacer recursivo
+                    subproject_instance = Project(name=section, folder=project[section]['folder'])
+                    subsections.append(subproject_instance)
+
+            project_instance = Project(name=project_name, folder=project.get('folder'), subprojects=subsections)
 
             # Los plugins se cargan y se ejecutarán en el orden especificado en
             # la lista de la config

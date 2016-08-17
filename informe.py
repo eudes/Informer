@@ -94,6 +94,7 @@ def parse_results(projects):
     """
     for project in projects:
         if project.subprojects:
+            print(project.name)
 
             parse_results(project.subprojects)
             plugin_report_dict = sum_reports(project.subprojects)
@@ -111,6 +112,8 @@ def parse_results(projects):
 
                     project.reports[plugin.name] = Report(report=plugin_report_dict[plugin.name],
                                                               formatted_report=formatted_report)
+
+            print(project.subprojects)
 
         else:
 

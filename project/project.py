@@ -28,7 +28,11 @@ class Project(object):
     @subprojects.setter
     def subprojects(self, subprojects):
         for project in subprojects:
-            self._subprojects.append(Project(**project))
+            if isinstance(project, Project):
+                project_instance = project
+            else:
+                project_instance = Project(**project)
+            self._subprojects.append(project_instance)
 
     @property
     def plugins(self):

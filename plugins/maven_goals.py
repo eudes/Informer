@@ -33,19 +33,21 @@ class MavenGoal(BasePlugin):
 
         profiles = ''
         # TODO: arreglar el caso de que solo haya un valor (forcelist)
-        if 'profiles' in maven_config:
+        if maven_config.get('profiles'):
             profiles = ' '.join(['-P', ','.join(maven_config['profiles'])])
 
         settings = ''
-        if 'settings_file' in maven_config:
+        if maven_config.get('settings_file'):
             settings = ' '.join(['-s', format_path(maven_config['settings_file'])])
 
         pom_file = ' '.join(['-f', '$folder' + self.pom_filename])
 
         flags_array = ['-B']
-        if 'quiet' in maven_config:
+        if maven_config.get('quiet'):
             flags_array.append('-q')
-        if 'flags' in maven_config:
+        if maven_config.get('skip_tests'):
+            flags_array.append('-DskipTests')
+        if maven_config.get('flags'):
             flags_array.extend(maven_config['flags'])
         flags = ' '.join(flags_array)
 
