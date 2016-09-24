@@ -28,7 +28,7 @@ class Project(object):
         try:
             return self._subprojects
         except:
-            return self._subprojects
+            return None
 
     @subprojects.setter
     def subprojects(self, subprojects):
