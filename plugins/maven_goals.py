@@ -56,20 +56,17 @@ class MavenGoal(BasePlugin):
 
     def get_diff_report(self, new_report, old_report):
         diff_report = new_report[:]
-        old_report_results = None
-        if old_report and 'report' in old_report:
-            old_report_results = old_report['report']
-        else:
-            pass
+        if not old_report:
+            return ['X' for index in new_report]
 
         for index, value in enumerate(new_report):
             diff = 'X'
-            if old_report_results:
-                try:
-                    if old_report_results[index] != 'X':
-                        diff = value - old_report_results[index]
-                except KeyError:
-                    pass
+
+            try:
+                if index < len(old_report) and old_report[index] != 'X':
+                    diff = value - old_report[index]
+            except KeyError:
+                pass
 
             diff_report[index] = diff
 

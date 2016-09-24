@@ -48,13 +48,13 @@ def main():
 
     # Guarda el informe en formato json
     result_json_filepath = config.output_folder + "\\" + config.output_filename + ".json"
-    save_projects(projects, result_json_filepath)
+    #save_projects(projects, result_json_filepath)
 
     # Guarda el informe en formato txt
-    save_report(config, projects)
+    #save_report(config, projects)
 
     # Guarda la ubicación del último informe en la config
-    config.save_config(result_report_path=result_json_filepath)
+    #config.save_config(result_report_path=result_json_filepath)
 
 def main2():
     try:
@@ -72,8 +72,8 @@ def main2():
     # Quitar los formatted reports de la info guardada, hacerlos solo obtenibles mediante la ejecución de una función
 
     # Carga el último informe y lo mapea a los nuevos
-#    if config.last_report:
-#        map_new_to_old_projects(config, projects)
+    if config.last_report:
+        map_new_to_old_projects(config, projects)
 
     # Ejecuta los comandos de los plugins
     if not config.skip_commands:
@@ -84,13 +84,13 @@ def main2():
 
     # Guarda el informe en formato json
     result_json_filepath = config.output_folder + "\\" + config.output_filename + ".json"
-    save_projects(projects, result_json_filepath)
+    #save_projects(projects, result_json_filepath)
 
     # Guarda el informe en formato txt
-    save_report(config, projects)
+    #save_report(config, projects)
 
     # Guarda la ubicación del último informe en la config
-    config.save_config(result_report_path=result_json_filepath)
+    #config.save_config(result_report_path=result_json_filepath)
 
 def map_new_to_old_projects(config, projects):
     """
@@ -169,7 +169,7 @@ def parse_results(projects):
                     project.reports[plugin.name] = Report(report=plugin_report_dict[plugin.name],
                                                               formatted_report=formatted_report)
 
-            print(project.subprojects)
+            print(project.reports)
 
         else:
 
@@ -240,4 +240,4 @@ def sum_reports(projects):
     return plugin_reports
 
 
-test()
+main()
