@@ -2,18 +2,20 @@ class Project(object):
 
     def __init__(self, name, folder="", subprojects=None,
                  plugins=None, reports=None, old_reports=None,
-                 error=False, error_plugins=None):
+                 error=False, error_plugins=None, _subprojects = None, _plugins = None):
 
+        if subprojects is None: subprojects = _subprojects
         if subprojects is None: subprojects = []
+        if plugins is None: plugins = _plugins
         if plugins is None: plugins = []
+        if _subprojects is None: _subprojects = []
+        if _plugins is None: _plugins = []
         if reports is None: reports = {}
         if old_reports is None: old_reports = {}
         if error_plugins is None: error_plugins = []
 
-        self._subprojects = []
-        self.subprojects = subprojects
-        self._plugins = []
-        self.plugins = plugins
+        self._subprojects = subprojects or _subprojects
+        self._plugins = plugins or _plugins
         self.reports = reports
         self.old_reports = old_reports
         self.name = name
@@ -23,7 +25,10 @@ class Project(object):
 
     @property
     def subprojects(self):
-        return self._subprojects
+        try:
+            return self._subprojects
+        except:
+            return self._subprojects
 
     @subprojects.setter
     def subprojects(self, subprojects):
