@@ -32,7 +32,10 @@ def main():
     except IndexError:
         config_file = "config.ini"
 
-    config = load_config(config_file)
+    try:
+        config = load_config(config_file)
+    except KeyError:
+        _log.error("Error al obtener la configuración. Revisar el archivo " + config_file)
 
     projects = config.projects
     # Carga el último informe y lo mapea a los nuevos
