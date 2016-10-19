@@ -137,7 +137,7 @@ class Checkstyle(MavenGoal):
 # noinspection PyUnusedLocal
 class Pmd(MavenGoal):
     report_document_path = '/target/pmd.xml'
-    command_maven_goal = 'pmd:pmd'
+    command_maven_goal = 'pmd:pmd -Dformat="xml"'
     template = 'PMD: {}/{}/{} ({}/{}/{})'
 
     def __init__(self, config):

@@ -48,49 +48,13 @@ def main():
 
     # Guarda el informe en formato json
     result_json_filepath = config.output_folder + "\\" + config.output_filename + ".json"
-    #save_projects(projects, result_json_filepath)
+    save_projects(projects, result_json_filepath)
 
     # Guarda el informe en formato txt
-    #save_report(config, projects)
+    save_report(config, projects)
 
     # Guarda la ubicación del último informe en la config
-    #config.save_config(result_report_path=result_json_filepath)
-
-def main2():
-    try:
-        config_file = sys.argv[1]
-    except IndexError:
-        config_file = "config.ini"
-
-    config = load_config(config_file)
-
-    projects = config.projects
-
-
-    # Desacoplar los reports antiguos de los actuales
-    # Definir una fase de comparación, posiblemente dentro de la fase de generación de formatted_reports
-    # Quitar los formatted reports de la info guardada, hacerlos solo obtenibles mediante la ejecución de una función
-
-    # Carga el último informe y lo mapea a los nuevos
-    if config.last_report:
-        map_new_to_old_projects(config, projects)
-
-    # Ejecuta los comandos de los plugins
-    if not config.skip_commands:
-        exec_commands(projects)
-
-    # Parsea los resultados
-    parse_results(projects)
-
-    # Guarda el informe en formato json
-    result_json_filepath = config.output_folder + "\\" + config.output_filename + ".json"
-    #save_projects(projects, result_json_filepath)
-
-    # Guarda el informe en formato txt
-    #save_report(config, projects)
-
-    # Guarda la ubicación del último informe en la config
-    #config.save_config(result_report_path=result_json_filepath)
+    config.save_config(result_report_path=result_json_filepath)
 
 def map_new_to_old_projects(config, projects):
     """
@@ -119,12 +83,12 @@ def exec_commands(projects):
     """
     for project in projects:
         if project.subprojects:
-            # TODO: si un proyecto tiene subproyectos no se ejecutan los comandos
-            # Definir explicitamente la lista de plugins a ejecutar para un proyecto
-            # Aquí está claro que un proyecto se está comportando de dos formas completamente
-            # diferentes. No son el mismo objeto
-
+            # TODO: si un proyecto tiene subproyectos no se ejecutan los comandos del proyecto en si
+            # (sí los de los subs)
+            # Definir explícitamente la lista de plugins a ejecutar para un proyecto
             # Puede ser necesario que un proyecto contenga otros, pero necesite ejecutar comandos
+
+
             exec_commands(project.subprojects)
 
         else:

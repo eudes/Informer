@@ -1,8 +1,11 @@
+import time
+
+
 class Project(object):
 
     def __init__(self, name, folder="", subprojects=None,
                  plugins=None, reports=None, old_reports=None,
-                 error=False, error_plugins=None, _subprojects = None, _plugins = None):
+                 error=False, error_plugins=None, _subprojects = None, _plugins = None, date = None):
 
         if subprojects is None: subprojects = _subprojects
         if subprojects is None: subprojects = []
@@ -13,6 +16,7 @@ class Project(object):
         if reports is None: reports = {}
         if old_reports is None: old_reports = {}
         if error_plugins is None: error_plugins = []
+        if date is None: date = time.strftime("%d/%m/%Y, %H:%M:%S")
 
         self._subprojects = subprojects or _subprojects
         self._plugins = plugins or _plugins
@@ -22,6 +26,7 @@ class Project(object):
         self.folder = folder
         self.error = error
         self.error_plugins = error_plugins
+        self.date = date
 
     @property
     def subprojects(self):
