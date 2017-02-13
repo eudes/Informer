@@ -50,7 +50,7 @@ def main():
     parse_results(projects)
 
     # Guarda el informe en formato json
-    result_json_filepath = config.output_folder + "\\" + config.output_filename + ".json"
+    result_json_filepath = config.output_folder + "/" + config.output_filename + ".json"
     save_projects(projects, result_json_filepath)
 
     # Guarda el informe en formato txt
